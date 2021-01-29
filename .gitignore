@@ -1,5 +1,5 @@
-/backend/node_modules/
-/backend/dist/
+/server/node_modules/
+/server/dist/
 
-/frontend/node_modules/
-/frontend/dist/
+/web/node_modules/
+/web/dist/
