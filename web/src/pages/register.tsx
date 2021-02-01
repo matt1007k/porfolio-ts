@@ -1,19 +1,29 @@
 import React from "react";
-import { Formik } from "formik";
+import { Form, Formik } from "formik";
 import { InputField } from "../components/form/InputField";
+import { useRegisterMutation } from "../generated/graphql";
+import { toErrorMap } from "../utils/toErrorMap";
+import { useRouter } from "next/router";
 
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
+  const router = useRouter();
+  const [, register] = useRegisterMutation();
   return (
     <Formik
       initialValues={{ username: "", password: "" }}
-      onSubmit={(values) => {
-        console.log(values);
+      onSubmit={async (values, { setErrors }) => {
+        const response = await register(values);
+        if (response.data?.register.errors) {
+          setErrors(toErrorMap(response.data?.register.errors));
+        } else if (response.data?.register.user) {
+          router.push("/");
+        }
       }}
     >
-      {({ values, handleChange, handleSubmit }) => (
-        <form onSubmit={handleSubmit}>
+      {({ values, handleChange }) => (
+        <Form>
           <InputField
             label="Nombre de usuario"
             type="text"
@@ -28,8 +38,8 @@ const Register: React.FC<registerProps> = ({}) => {
             value={values.password}
             onChange={handleChange}
           />
-          <button>Sign In</button>
-        </form>
+          <button>Sign Up</button>
+        </Form>
       )}
     </Formik>
   );
