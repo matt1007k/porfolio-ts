@@ -1,9 +1,11 @@
-import React from "react";
 import { Form, Formik } from "formik";
+import { withUrqlClient } from "next-urql";
+import { useRouter } from "next/router";
+import React from "react";
 import { InputField } from "../components/form/InputField";
 import { useRegisterMutation } from "../generated/graphql";
+import { createUrlClient } from "../utils/createUrlClient";
 import { toErrorMap } from "../utils/toErrorMap";
-import { useRouter } from "next/router";
 
 interface registerProps {}
 
@@ -12,9 +14,9 @@ const Register: React.FC<registerProps> = ({}) => {
   const [, register] = useRegisterMutation();
   return (
     <Formik
-      initialValues={{ username: "", password: "" }}
+      initialValues={{ email: "", username: "", password: "" }}
       onSubmit={async (values, { setErrors }) => {
-        const response = await register(values);
+        const response = await register({ options: values });
         if (response.data?.register.errors) {
           setErrors(toErrorMap(response.data?.register.errors));
         } else if (response.data?.register.user) {
@@ -32,6 +34,13 @@ const Register: React.FC<registerProps> = ({}) => {
             onChange={handleChange}
           />
           <InputField
+            label="Correo Electrónico"
+            type="text"
+            name="email"
+            value={values.email}
+            onChange={handleChange}
+          />
+          <InputField
             label="Contraseña"
             type="password"
             name="password"
@@ -45,4 +54,4 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default Register;
+export default withUrqlClient(createUrlClient)(Register);
