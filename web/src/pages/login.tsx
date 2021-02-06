@@ -6,6 +6,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrlClient } from "../utils/createUrlClient";
+import NextLink from "next/link";
 
 interface loginProps {}
 
@@ -40,6 +41,9 @@ const Login: React.FC<loginProps> = ({}) => {
             value={values.password}
             onChange={handleChange}
           />
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <NextLink href="/forgot-password">forgot password?</NextLink>
+          </div>
           <button>Sign In</button>
         </Form>
       )}
