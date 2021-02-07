@@ -1,7 +1,5 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
-import MikroConfig from "./mikro-orm.config";
-
+import { createConnection } from "typeorm";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -15,10 +13,19 @@ import { __prod__, COOKIE_NAME } from "./constants";
 import { MyContext } from "./types";
 
 import cors from "cors";
+import { User } from "./entities/User";
+import { Project } from "./entities/Project";
 
 const main = async () => {
-  const orm = await MikroORM.init(MikroConfig);
-  await orm.getMigrator().up();
+  const cnn = await createConnection({
+    type: "postgres",
+    database: "portfolio-db",
+    username: "postgres",
+    password: "postgres",
+    logging: true,
+    synchronize: true, // create migration or table
+    entities: [User, Project],
+  });
 
   const app = express();
 
@@ -52,13 +59,13 @@ const main = async () => {
       resolvers: [HelloResolver, ProjectResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(4000, () =>
-    console.log("Listening server on http://localhost:4000")
+    console.log("Listening server on http://localhost:4000/graphql")
   );
 };
 
